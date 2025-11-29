@@ -4,7 +4,7 @@ using Grasshopper.Kernel;
 using Rhino;
 using Rhino.Geometry;
 
-namespace Tunnel.GH
+namespace Moria.ReFac
 {
     /// <summary>
     /// Komponent som forsøker robust å lukke en tunnel-mesh

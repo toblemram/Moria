@@ -10,7 +10,7 @@ using Grasshopper.Kernel.Types;
 using Rhino;
 using Rhino.Geometry;
 
-namespace Tunnel.GH
+namespace Moria.ReFac
 {
     public class GH_SosiImport : GH_Component, IGH_VariableParameterComponent
     {
@@ -222,7 +222,7 @@ namespace Tunnel.GH
 
             infoLines.Add($"Lest: {punkter.Count} PUNKT, {kurver.Count} KURVE.");
             infoLines.Add($"ENHET={enhet}, ORIGO-NØ=({origoN}, {origoO}).");
-            infoLines.Add($"DEBUG First KURVE pt (Rhino XYZ): {(kurver.FirstOrDefault()?.Points.FirstOrDefault().ToString() ?? "ingen")}");
+            infoLines.Add($"DEBUG First KURVE pt (Rhino XYZ): {kurver.FirstOrDefault()?.Points.FirstOrDefault().ToString() ?? "ingen"}");
 
             da.SetDataList(0, outCircles);
             da.SetDataList(1, outCenters);

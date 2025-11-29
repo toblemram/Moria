@@ -4,7 +4,7 @@ using Grasshopper.Kernel;
 using Rhino;
 using Rhino.Geometry;
 
-namespace Tunnel.GH
+namespace Moria.ReFac
 {
     public class GH_TunnelSprøytebetongTak : GH_Component
     {
@@ -103,7 +103,7 @@ namespace Tunnel.GH
                 return;
             }
 
-            Brep joinedBrep = (swept.Length == 1) ? swept[0] : Brep.JoinBreps(swept, tol)?[0];
+            Brep joinedBrep = swept.Length == 1 ? swept[0] : Brep.JoinBreps(swept, tol)?[0];
             if (joinedBrep == null)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Kunne ikke join brep.");
@@ -142,8 +142,8 @@ namespace Tunnel.GH
             CircleCircleIntersect(CvL, p.Rv, Ch, p.Rh, out Point3d pLtop, out Point3d pLlow);
             CircleCircleIntersect(CvR, p.Rv, Ch, p.Rh, out Point3d pRtop, out Point3d pRlow);
 
-            pLv = (pLtop.Y > pLlow.Y) ? pLtop : pLlow;
-            pRv = (pRtop.Y < pRlow.Y) ? pRtop : pRlow;
+            pLv = pLtop.Y > pLlow.Y ? pLtop : pLlow;
+            pRv = pRtop.Y < pRlow.Y ? pRtop : pRlow;
 
             Plane plL = new Plane(CvL, Vector3d.ZAxis);
             Circle cL = new Circle(plL, p.Rv);

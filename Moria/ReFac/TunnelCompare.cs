@@ -9,7 +9,7 @@ using Rhino;
 using Rhino.Geometry;
 using Rhino.Geometry.Intersect;
 
-namespace Tunnel.GH
+namespace Moria.ReFac
 {
     public class GH_TunnelBlastVolume_AB : GH_Component
     {
@@ -167,7 +167,7 @@ namespace Tunnel.GH
 
             var info = new List<string>();
             double tol = tolIn <= 0
-                ? (RhinoDoc.ActiveDoc?.ModelAbsoluteTolerance ?? 1e-3)
+                ? RhinoDoc.ActiveDoc?.ModelAbsoluteTolerance ?? 1e-3
                 : tolIn;
             if (step <= 0) step = 1.0;
 
@@ -271,8 +271,8 @@ namespace Tunnel.GH
                 try { Intersection.BrepPlane(designBrep, secPlane, tol, out desCrvs, out dummyPts); }
                 catch { desCrvs = null; }
 
-                Rhino.Geometry.Transform toXY =
-                    Rhino.Geometry.Transform.PlaneToPlane(secPlane, Plane.WorldXY);
+                Transform toXY =
+                    Transform.PlaneToPlane(secPlane, Plane.WorldXY);
 
                 // Areal: scan
                 double scanArea = 0.0;
@@ -583,7 +583,7 @@ namespace Tunnel.GH
                 if (lst != null && lst.Count > 0)
                 {
                     var joined = Brep.JoinBreps(lst, tol);
-                    stepB = (joined != null && joined.Length > 0) ? joined[0] : lst[0];
+                    stepB = joined != null && joined.Length > 0 ? joined[0] : lst[0];
 
                     var capped = stepB.CapPlanarHoles(tol);
                     if (capped != null && capped.IsValid)
@@ -729,7 +729,7 @@ namespace Tunnel.GH
         {
             if (_lastStations == null || _lastStations.Count == 0)
             {
-                Rhino.RhinoApp.WriteLine("Ingen seksjonsdata ennå – kjør komponenten først.");
+                RhinoApp.WriteLine("Ingen seksjonsdata ennå – kjør komponenten først.");
                 return;
             }
 
@@ -890,12 +890,12 @@ namespace Tunnel.GH
             }
 
             double s = _stations[_index];
-            Point3d pt = (_points != null && _points.Count > _index)
+            Point3d pt = _points != null && _points.Count > _index
                 ? _points[_index]
                 : Point3d.Unset;
-            double aB = (_blastAreas != null && _blastAreas.Count > _index) ? _blastAreas[_index] : 0.0;
-            double aS = (_scanAreas != null && _scanAreas.Count > _index) ? _scanAreas[_index] : 0.0;
-            double aD = (_designAreas != null && _designAreas.Count > _index) ? _designAreas[_index] : 0.0;
+            double aB = _blastAreas != null && _blastAreas.Count > _index ? _blastAreas[_index] : 0.0;
+            double aS = _scanAreas != null && _scanAreas.Count > _index ? _scanAreas[_index] : 0.0;
+            double aD = _designAreas != null && _designAreas.Count > _index ? _designAreas[_index] : 0.0;
 
             _infoBlock.Text =
                 $"Index:        {_index}\n" +
@@ -917,9 +917,9 @@ namespace Tunnel.GH
             if (_index < 0 || _index >= _stations.Count)
                 return;
 
-            var scan = (_scanProfiles2D != null && _scanProfiles2D.Count > _index) ? _scanProfiles2D[_index] : null;
-            var design = (_designProfiles2D != null && _designProfiles2D.Count > _index) ? _designProfiles2D[_index] : null;
-            var blast = (_blastProfiles2D != null && _blastProfiles2D.Count > _index) ? _blastProfiles2D[_index] : null;
+            var scan = _scanProfiles2D != null && _scanProfiles2D.Count > _index ? _scanProfiles2D[_index] : null;
+            var design = _designProfiles2D != null && _designProfiles2D.Count > _index ? _designProfiles2D[_index] : null;
+            var blast = _blastProfiles2D != null && _blastProfiles2D.Count > _index ? _blastProfiles2D[_index] : null;
 
             var all = new List<Polyline>();
             if (scan != null) all.AddRange(scan);

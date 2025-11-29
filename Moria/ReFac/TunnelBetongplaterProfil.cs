@@ -4,7 +4,7 @@ using Grasshopper.Kernel;
 using Rhino;
 using Rhino.Geometry;
 
-namespace Tunnel.GH
+namespace Moria.ReFac
 {
     public class GH_TunnelBetongplaterProfil : GH_Component
     {
@@ -166,8 +166,8 @@ namespace Tunnel.GH
             CircleCircleIntersect(CvL, p.Rv, Ch, p.Rh, out Point3d pLtop, out Point3d pLlow);
             CircleCircleIntersect(CvR, p.Rv, Ch, p.Rh, out Point3d pRtop, out Point3d pRlow);
 
-            pLv = (pLtop.Y > pLlow.Y) ? pLtop : pLlow;
-            pRv = (pRtop.Y < pRlow.Y) ? pRtop : pRlow;
+            pLv = pLtop.Y > pLlow.Y ? pLtop : pLlow;
+            pRv = pRtop.Y < pRlow.Y ? pRtop : pRlow;
 
             // VENSTRE
             Plane plL = new Plane(CvL, Vector3d.ZAxis);

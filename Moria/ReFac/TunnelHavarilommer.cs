@@ -6,7 +6,7 @@ using Rhino.Geometry;
 using System.Drawing;
 using System.IO;
 
-namespace Tunnel.GH
+namespace Moria.ReFac
 {
     public class GH_TunnelHavarilommer : GH_Component
     {
@@ -209,8 +209,8 @@ namespace Tunnel.GH
             Brep LagNisje(double sCenter, bool isRightSide)
             {
                 double s0 = sCenter - (rampLen + flatLen / 2.0); // start
-                double s1 = sCenter - (flatLen / 2.0);           // ramp ferdig
-                double s2 = sCenter + (flatLen / 2.0);           // ramp starter ned
+                double s1 = sCenter - flatLen / 2.0;           // ramp ferdig
+                double s2 = sCenter + flatLen / 2.0;           // ramp starter ned
                 double s3 = sCenter + (rampLen + flatLen / 2.0); // slutt
 
                 if (s0 < 0 || s3 > curveLength)
@@ -315,7 +315,7 @@ namespace Tunnel.GH
                         new LineCurve(ti[idx], bi[idx])
                     };
                     var caps = Brep.CreatePlanarBreps(edges, tol);
-                    return (caps != null && caps.Length > 0) ? caps[0] : null;
+                    return caps != null && caps.Length > 0 ? caps[0] : null;
                 }
 
                 Brep cap0 = MakeCap(0);
@@ -487,14 +487,14 @@ namespace Tunnel.GH
         };
 
 
-        protected override System.Drawing.Bitmap Icon
+        protected override Bitmap Icon
         {
             get
             {
                 var assembly = System.Reflection.Assembly.GetExecutingAssembly();
                 using (var stream = assembly.GetManifestResourceStream("Moria.Resources.Stopplomme1.png"))
                 {
-                    return new System.Drawing.Bitmap(stream);
+                    return new Bitmap(stream);
                 }
             }
         }

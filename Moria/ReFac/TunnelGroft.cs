@@ -4,7 +4,7 @@ using Grasshopper.Kernel;
 using Rhino;
 using Rhino.Geometry;
 
-namespace Tunnel.GH
+namespace Moria.ReFac
 {
     public class GH_TunnelGroft : GH_Component
     {

@@ -3,7 +3,7 @@ using Grasshopper.Kernel;
 using System;
 using System.Drawing;
 
-namespace Moria
+namespace Moria.ReFac
 {
     public class MoriaInfo : GH_AssemblyInfo
     {

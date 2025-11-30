@@ -12,7 +12,7 @@ namespace Moria.TunnelGeometry.Components
         public GH_TunnelProfile() :
             base("TunnelProfile", "TunnelProfile",
                  "Builds a tunnel cross-section using Norwegian T-profile definitions.",
-                 "Tunnel", "Sections")
+                 "Tunnel", "Tunnel Geom")
         { }
 
         protected override void RegisterInputParams(GH_InputParamManager p)
@@ -175,7 +175,7 @@ namespace Moria.TunnelGeometry.Components
             get
             {
                 var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                using (var stream = assembly.GetManifestResourceStream("Moria.Resources.TunnelProfile.png"))
+                using (var stream = assembly.GetManifestResourceStream("Moria.Resources.SS.png"))
                 {
                     return new System.Drawing.Bitmap(stream);
                 }

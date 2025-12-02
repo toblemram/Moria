@@ -522,9 +522,7 @@ namespace Moria.TunnelGeometry.Components
             da.SetDataList(1, baySegmentBreps);
             da.SetDataList(2, bayCentres);
             da.SetDataList(3, info);
-            da.SetDataList(4, badPts);
-            da.SetDataList(5, nakedPts);
-            da.SetDataList(6, nonManPts);
+            
         }
 
         // --------------------------------------------------------------------

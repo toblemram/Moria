@@ -38,9 +38,13 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="GeometryGymIFC_Core" Version="25.7.30" />
     <PackageReference Include="Grasshopper" Version="8.0.23304.9001" ExcludeAssets="runtime" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.10" />
     <PackageReference Include="System.Resources.Extensions" Version="9.0.10" />
+    <PackageReference Include="Xbim.Essentials" Version="6.0.563" />
+    <PackageReference Include="Xbim.Geometry" Version="5.1.820" />
+    <PackageReference Include="Xbim.Ifc2x3" Version="6.0.563" />
   </ItemGroup>
   
   <!-- For Windows only builds -->

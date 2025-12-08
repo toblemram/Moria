@@ -14,7 +14,7 @@ namespace Moria.TunnelGeometry.Components
             : base(
                 "Tunnel Barrier + Shelf",
                 "BarrierShelf",
-                "Creates a concrete barrier and upper shelf along one tunnel wall, following T-profiles and emergency bays.",
+                "Creates a concrete barrier, upper shelf and an under-shelf box along one tunnel wall, following T-profiles and emergency bays.",
                 "Tunnel",
                 "Details")
         { }
@@ -101,6 +101,15 @@ namespace Moria.TunnelGeometry.Components
                 "Vertical thickness of shelf [m]",
                 GH_ParamAccess.item,
                 0.15);
+
+            p.AddNumberParameter(
+                "TransverseOffset",
+                "TO",
+                "Additional lateral offset of shelf + barrier + box from the tunnel wall [m]. " +
+                "Positive moves away from tunnel centreline (outwards, can move outside T-profile), " +
+                "negative moves towards the centreline.",
+                GH_ParamAccess.item,
+                0.0);
         }
 
         // --------------------------------------------------------------------
@@ -114,6 +123,7 @@ namespace Moria.TunnelGeometry.Components
             p.AddCurveParameter("EdgeLine", "E", "Edge line (top of shelf)", GH_ParamAccess.item);
             p.AddTextParameter("Info", "i", "Diagnostics", GH_ParamAccess.list);
             p.AddGeometryParameter("Debug", "D", "Debug geometry", GH_ParamAccess.list);
+            p.AddBrepParameter("UnderShelfBox", "UB", "Box under the shelf, same width as shelf and height = BarrierHeight - ShelfThickness", GH_ParamAccess.item);
         }
 
         // --------------------------------------------------------------------
@@ -141,6 +151,9 @@ namespace Moria.TunnelGeometry.Components
             public Curve ShelfStart2D;
             public Curve ShelfEnd2D;
 
+            public Curve BoxStart2D;
+            public Curve BoxEnd2D;
+
             public Point3d EdgeStart2D;
             public Point3d EdgeEnd2D;
         }
@@ -164,6 +177,7 @@ namespace Moria.TunnelGeometry.Components
             double gapShelfBarrier = 0.05;
             double shelfWidth = 0.40;
             double shelfThickness = 0.15;
+            double transverseOffset = 0.0;
 
             da.GetData(0, ref path);
             da.GetData(1, ref baseProfileType);
@@ -177,6 +191,7 @@ namespace Moria.TunnelGeometry.Components
             da.GetData(9, ref gapShelfBarrier);
             da.GetData(10, ref shelfWidth);
             da.GetData(11, ref shelfThickness);
+            da.GetData(12, ref transverseOffset);
 
             var info = new List<string>();
             var debug = new List<GeometryBase>();
@@ -278,7 +293,7 @@ namespace Moria.TunnelGeometry.Components
             debug.Add(baySide2D.DuplicateCurve());
 
             // ------------------------
-            // BUILD BARRIER/SHELF 2D
+            // BUILD BARRIER/SHELF/BOX 2D
             // ------------------------
 
             BuildBarrierAndShelf2D(
@@ -291,11 +306,19 @@ namespace Moria.TunnelGeometry.Components
                 gapShelfBarrier,
                 shelfWidth,
                 shelfThickness,
+                transverseOffset,
                 tol,
                 out Curve barrierBase2D,
                 out Curve shelfBase2D,
+                out Curve boxBase2D,
                 out Point3d edgeBase2D,
                 out string err1);
+
+            if (barrierBase2D == null || shelfBase2D == null || boxBase2D == null)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, err1 ?? "Failed to build base barrier/shelf/box");
+                return;
+            }
 
             BuildBarrierAndShelf2D(
                 baySide2D,
@@ -307,16 +330,26 @@ namespace Moria.TunnelGeometry.Components
                 gapShelfBarrier,
                 shelfWidth,
                 shelfThickness,
+                transverseOffset,
                 tol,
                 out Curve barrierBay2D,
                 out Curve shelfBay2D,
+                out Curve boxBay2D,
                 out Point3d edgeBay2D,
                 out string err2);
 
+            if (barrierBay2D == null || shelfBay2D == null || boxBay2D == null)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, err2 ?? "Failed to build bay barrier/shelf/box");
+                return;
+            }
+
             debug.Add(barrierBase2D.DuplicateCurve());
             debug.Add(shelfBase2D.DuplicateCurve());
+            debug.Add(boxBase2D.DuplicateCurve());
             debug.Add(barrierBay2D.DuplicateCurve());
             debug.Add(shelfBay2D.DuplicateCurve());
+            debug.Add(boxBay2D.DuplicateCurve());
             debug.Add(new Rhino.Geometry.Point(edgeBase2D));
             debug.Add(new Rhino.Geometry.Point(edgeBay2D));
 
@@ -341,6 +374,8 @@ namespace Moria.TunnelGeometry.Components
                         BarrierEnd2D = barrierBase2D,
                         ShelfStart2D = shelfBase2D,
                         ShelfEnd2D = shelfBase2D,
+                        BoxStart2D = boxBase2D,
+                        BoxEnd2D = boxBase2D,
                         EdgeStart2D = edgeBase2D,
                         EdgeEnd2D = edgeBase2D
                     });
@@ -357,6 +392,8 @@ namespace Moria.TunnelGeometry.Components
                         BarrierEnd2D = barrierBay2D,
                         ShelfStart2D = shelfBase2D,
                         ShelfEnd2D = shelfBay2D,
+                        BoxStart2D = boxBase2D,
+                        BoxEnd2D = boxBay2D,
                         EdgeStart2D = edgeBase2D,
                         EdgeEnd2D = edgeBay2D
                     });
@@ -373,6 +410,8 @@ namespace Moria.TunnelGeometry.Components
                         BarrierEnd2D = barrierBay2D,
                         ShelfStart2D = shelfBay2D,
                         ShelfEnd2D = shelfBay2D,
+                        BoxStart2D = boxBay2D,
+                        BoxEnd2D = boxBay2D,
                         EdgeStart2D = edgeBay2D,
                         EdgeEnd2D = edgeBay2D
                     });
@@ -389,6 +428,8 @@ namespace Moria.TunnelGeometry.Components
                         BarrierEnd2D = barrierBase2D,
                         ShelfStart2D = shelfBay2D,
                         ShelfEnd2D = shelfBase2D,
+                        BoxStart2D = boxBay2D,
+                        BoxEnd2D = boxBase2D,
                         EdgeStart2D = edgeBay2D,
                         EdgeEnd2D = edgeBase2D
                     });
@@ -408,6 +449,8 @@ namespace Moria.TunnelGeometry.Components
                     BarrierEnd2D = barrierBase2D,
                     ShelfStart2D = shelfBase2D,
                     ShelfEnd2D = shelfBase2D,
+                    BoxStart2D = boxBase2D,
+                    BoxEnd2D = boxBase2D,
                     EdgeStart2D = edgeBase2D,
                     EdgeEnd2D = edgeBase2D
                 });
@@ -425,6 +468,7 @@ namespace Moria.TunnelGeometry.Components
 
             var barrierPieces = new List<Brep>();
             var shelfPieces = new List<Brep>();
+            var boxPieces = new List<Brep>();
             int segId = 0;
 
             foreach (var seg in segments)
@@ -433,6 +477,7 @@ namespace Moria.TunnelGeometry.Components
                 if (segLen <= tol)
                 {
                     info.Add($"Segment {segId}: too short");
+                    segId++;
                     continue;
                 }
 
@@ -440,6 +485,7 @@ namespace Moria.TunnelGeometry.Components
                     !path.LengthParameter(seg.SEnd, out double t1))
                 {
                     info.Add($"Segment {segId}: failed LengthParameter");
+                    segId++;
                     continue;
                 }
 
@@ -450,6 +496,7 @@ namespace Moria.TunnelGeometry.Components
                 if (rail == null)
                 {
                     info.Add($"Segment {segId}: rail trim failed");
+                    segId++;
                     continue;
                 }
 
@@ -457,6 +504,7 @@ namespace Moria.TunnelGeometry.Components
                     !path.PerpendicularFrameAt(tMax, out Plane frame1))
                 {
                     info.Add($"Segment {segId}: frame failed");
+                    segId++;
                     continue;
                 }
 
@@ -482,14 +530,27 @@ namespace Moria.TunnelGeometry.Components
                 if (sPiece != null && sPiece.Length > 0)
                     shelfPieces.Add(sPiece[0]);
 
+                // Under-shelf box
+                Curve xS = seg.BoxStart2D.DuplicateCurve();
+                Curve xE = seg.BoxEnd2D.DuplicateCurve();
+
+                xS.Transform(Transform.PlaneToPlane(Plane.WorldXY, frame0));
+                xE.Transform(Transform.PlaneToPlane(Plane.WorldXY, frame1));
+
+                var xPiece = sweep.PerformSweep(rail, new Curve[] { xS, xE });
+                if (xPiece != null && xPiece.Length > 0)
+                    boxPieces.Add(xPiece[0]);
+
                 segId++;
             }
 
             var barrierJoined = JoinBrepsList(barrierPieces, tol);
             var shelfJoined = JoinBrepsList(shelfPieces, tol);
+            var boxJoined = JoinBrepsList(boxPieces, tol);
 
             barrierJoined = PrepareSolid(barrierJoined, tol);
             shelfJoined = PrepareSolid(shelfJoined, tol);
+            boxJoined = PrepareSolid(boxJoined, tol);
 
             // ------------------------
             // EDGE LINE
@@ -506,6 +567,7 @@ namespace Moria.TunnelGeometry.Components
             da.SetData(2, edgeLine);
             da.SetDataList(3, info);
             da.SetDataList(4, debug);
+            da.SetData(5, boxJoined);
         }
 
         // --------------------------------------------------------------------
@@ -553,7 +615,7 @@ namespace Moria.TunnelGeometry.Components
         }
 
         // --------------------------------------------------------------------
-        // NEW BARRIER + SHELF GEOMETRY (UPDATED AS AGREED!)
+        // NEW BARRIER + SHELF + BOX GEOMETRY
         // --------------------------------------------------------------------
 
         private static bool BuildBarrierAndShelf2D(
@@ -566,15 +628,18 @@ namespace Moria.TunnelGeometry.Components
             double gapShelfBarrier,
             double shelfWidth,
             double shelfThickness,
+            double transverseOffset,
             double tol,
             out Curve barrier2D,
             out Curve shelf2D,
+            out Curve box2D,
             out Point3d edgePoint2D,
             out string error)
         {
             error = null;
             barrier2D = null;
             shelf2D = null;
+            box2D = null;
             edgePoint2D = new Point3d();
 
             if (!(profileWorld is PolyCurve poly))
@@ -583,8 +648,10 @@ namespace Moria.TunnelGeometry.Components
                 return false;
             }
 
+            // Wall segment: right wall = segment 2, left wall = segment 0
             Curve wall = poly.SegmentCurve(rightSide ? 2 : 0);
 
+            // Horizontal line at barrierOffset
             var horz = new LineCurve(
                 new Point3d(-1000, barrierOffset, 0),
                 new Point3d(+1000, barrierOffset, 0));
@@ -611,11 +678,11 @@ namespace Moria.TunnelGeometry.Components
             double yShelfTop = y1;
             double yShelfBottom = y1 - shelfThickness;
 
-            // Shelf near wall
-            double xShelfBack = xWall;
+            // Shelf near wall, with additional transverse offset
+            double xShelfBack = xWall + sign * transverseOffset;
             double xShelfFront = xShelfBack - sign * shelfWidth;
 
-            // Gap between shelf and barrier
+            // Gap between shelf and barrier (barrier behind shelf)
             double xBack = xShelfFront - sign * gapShelfBarrier;
 
             // Barrier front
@@ -642,6 +709,23 @@ namespace Moria.TunnelGeometry.Components
                 new Point3d(xShelfFront, yShelfBottom, 0)
             });
 
+            // Box under shelf:
+            // - same width as shelf (xShelfFront to xShelfBack)
+            // - height = BarrierHeight - ShelfThickness
+            //   => from barrier bottom (y0) up to underside of shelf (yShelfBottom)
+            double yBoxBottom = y0;
+            double yBoxTop = yShelfBottom;
+
+            box2D = new PolylineCurve(new[]
+            {
+                new Point3d(xShelfFront, yBoxBottom, 0),
+                new Point3d(xShelfBack,  yBoxBottom, 0),
+                new Point3d(xShelfBack,  yBoxTop,    0),
+                new Point3d(xShelfFront, yBoxTop,    0),
+                new Point3d(xShelfFront, yBoxBottom, 0)
+            });
+
+            // Edge line point = outer front top of shelf
             edgePoint2D = new Point3d(xShelfFront, yShelfTop, 0);
 
             return true;

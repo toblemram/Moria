@@ -22,6 +22,8 @@ namespace Moria.TunnelGeometry.Components
                 X = x;
                 Rh = rh;
             }
+
+           
         }
 
         /// <summary>

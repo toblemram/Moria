@@ -63,6 +63,8 @@ namespace Moria.TunnelGeometry.Components
             Curve path = null;
             bool leftToRight = true;
 
+            
+
             da.GetData(0, ref type);
             da.GetData(1, ref path);
             da.GetData(2, ref leftToRight);

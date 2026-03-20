@@ -1,0 +1,55 @@
+﻿<Window x:Class="Moria.TunnelGeometry.Components.PullBoxEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Pull Box Editor" Height="560" Width="1320"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+            <Button Content="Oppdater" Width="110" Margin="0,0,8,0" Click="OnApply"/>
+            <Button Content="Add" Width="80" Margin="0,0,8,0" Click="OnAdd"/>
+            <Button Content="Remove" Width="80" Click="OnRemove"/>
+        </DockPanel>
+
+        <DataGrid Grid.Row="1"
+                  x:Name="GridBoxes"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  SelectionMode="Single"
+                  HeadersVisibility="Column"
+                  IsReadOnly="False"
+                  CellEditEnding="OnCellEditEnding"
+                  CurrentCellChanged="OnCurrentCellChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Station" Binding="{Binding Station, Mode=TwoWay}" Width="90"/>
+                <DataGridTextColumn Header="dStation" Binding="{Binding StationOffset, Mode=TwoWay}" Width="90"/>
+                <DataGridCheckBoxColumn Header="FollowInterval" Binding="{Binding FollowInterval, Mode=TwoWay}" Width="120"/>
+                <DataGridCheckBoxColumn Header="UseDefaults" Binding="{Binding UseDefaults, Mode=TwoWay}" Width="105"/>
+
+                <DataGridTextColumn Header="L (Z)" Binding="{Binding Length, Mode=TwoWay}" Width="70"/>
+                <DataGridTextColumn Header="W (X)" Binding="{Binding Width, Mode=TwoWay}" Width="70"/>
+                <DataGridTextColumn Header="H (Y)" Binding="{Binding Height, Mode=TwoWay}" Width="70"/>
+
+                <DataGridTextColumn Header="LongOpenW (Z)" Binding="{Binding LongOpenWidth, Mode=TwoWay}" Width="110"/>
+                <DataGridTextColumn Header="LongOpenH (0→Y)" Binding="{Binding LongOpenHeight, Mode=TwoWay}" Width="120"/>
+
+                <DataGridTextColumn Header="ShortOpenW (X)" Binding="{Binding ShortOpenWidth, Mode=TwoWay}" Width="115"/>
+                <DataGridTextColumn Header="ShortOpenH (0→Y)" Binding="{Binding ShortOpenHeight, Mode=TwoWay}" Width="120"/>
+
+                <DataGridTextColumn Header="Thk" Binding="{Binding Thickness, Mode=TwoWay}" Width="70"/>
+
+                <DataGridTextColumn Header="OffsetZ" Binding="{Binding OffsetZ, Mode=TwoWay}" Width="80"/>
+                <DataGridTextColumn Header="OffsetXY" Binding="{Binding OffsetXY, Mode=TwoWay}" Width="80"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <DockPanel Grid.Row="2" Margin="0,10,0,0" LastChildFill="False" HorizontalAlignment="Right">
+            <Button Content="Close" Width="100" Click="OnClose"/>
+        </DockPanel>
+    </Grid>
+</Window>
